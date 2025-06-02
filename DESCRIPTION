@@ -1,5 +1,5 @@
 Package: betRBall
-Title: An R package for football betting calculations
+Title: An R package for football betting calculations and visualizations
 Version: 0.1.0
 Authors@R: 
     person("William", "Wiik", email = "william.wiik@hotmail.se", role = c("aut", "cre"))

@@ -5,10 +5,20 @@
 
 # betRBall
 
-An R package for football betting calculations.
+**betRBall** is an R package for football betting calculations and visualizations.  
+
+## 📦 Included Functions
+
+Currently, the package contains the following core functions:
+
+- `poisson_goal_grid()`: Generates a matrix of goal outcome probabilities for two teams using Poisson distribution.
+- `asian_handicap_odds()`: Calculates Asian handicap odds (e.g., -0.75, +1.5) using a matrix of goal outcome probabilities such as from `poisson_goal_grid()`.
+- `asian_total_odds()`: Calculates odds for Asian total goals lines (e.g., over/under 2.5, 3.25) using a matrix of goal outcome probabilities.
+- `sim_bets()`: Simulates betting outcomes over multiple bets and simulations to estimate expected profit and variance.
 
 
-## Installation
+
+## 🔧 Installation
 
 You can install the development version of `betRBall` from GitHub with:
 
@@ -16,7 +26,7 @@ You can install the development version of `betRBall` from GitHub with:
 devtools::install_github("willewiik/betRBall")
 ```
 
-## Example 1
+## 📊 Example 1
 
 ```{r example}
 library(betRBall)
@@ -37,7 +47,7 @@ print(total_odds)
 
 
 
-## Example 2
+## 📊 Example 2
 
 ```{r example}
 library(betRBall)
@@ -56,9 +66,9 @@ result[["odds_plot"]]
 
 ```
 
-## Plot ouputs
+## 📈 Plot outputs
 
-Plot output for the function `sim_bets()`
+Plot outputs for the function `sim_bets()`
 
 ### Profit Plot
 ![Profit Plot](man/plots/profit_plot.png)
