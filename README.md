@@ -14,7 +14,7 @@ Currently, the package contains the following core functions:
 - `poisson_goal_grid()`: Generates a matrix of goal outcome probabilities for two teams using Poisson distribution.
 - `asian_handicap_odds()`: Calculates Asian handicap odds (e.g., -0.75, +1.5) using a matrix of goal outcome probabilities such as from `poisson_goal_grid()`.
 - `asian_total_odds()`: Calculates odds for Asian total goals lines (e.g., over/under 2.5, 3.25) using a matrix of goal outcome probabilities.
-- `sim_bets()`: Simulates betting outcomes over multiple bets and simulations to estimate expected profit and variance.
+- `sim_bets()`: Simulates betting outcomes to estimate expected profit and variance.
 
 
 
@@ -54,9 +54,11 @@ library(betRBall)
 
 # Run a simulation with:
 # - 1000 bets
-# - 500 simulations
+# - 250 simulations
 # - 5% edge 
-result <- sim_bets(n_bets = 1000, n_sim = 250, edge = 1.05, max_odds = 4)
+# - max odds of 4 
+# - proportional stake size to the odds
+result <- sim_bets(n_bets = 1000, n_sim = 250, edge = 1.05, flat = FALSE, max_odds = 4)
 
 # Plot the cumulative profit across all simulations
 result[["profit_plot"]]
