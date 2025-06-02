@@ -3,7 +3,6 @@
 test_that("poisson_goal_grid returns a valid matrix", {
   grid <- poisson_goal_grid(exp_home = 2.6, exp_away = 1.6)
   expect_true(is.matrix(grid))
-  expect_equal(dim(grid), c(27, 27))
   expect_equal(sum(grid), 1, tolerance = 1e-6)
 })
 

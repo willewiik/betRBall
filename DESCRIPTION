@@ -12,7 +12,8 @@ Depends: R (>= 3.5.0)
 Imports:
     dplyr,
     ggplot2,
-    tidyr
+    tidyr,
+    roxygen2
 Suggests:
     testthat,
     knitr,
