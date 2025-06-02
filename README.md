@@ -56,7 +56,7 @@ library(betRBall)
 # - 1000 bets
 # - 500 simulations
 # - 5% edge 
-result <- sim_bets(n_bets = 1000, n_sim = 500, edge = 1.05)
+result <- sim_bets(n_bets = 1000, n_sim = 250, edge = 1.05, max_odds = 4)
 
 # Plot the cumulative profit across all simulations
 result[["profit_plot"]]

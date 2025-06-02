@@ -4,13 +4,17 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("bet_number", "simulatio
 #' Simulate Betting Outcomes
 #'
 #' This function simulates the cumulative profit over a specified number of bets and simulations,
-#' allowing for the calculation of expected profit based on given odds and stake.
+#' allowing for analysis of the impact of betting edges, stake sizing (flat or proportional),
+#' and random or fixed odds. It returns plots of profit and odds distribution
 #'
-#' @param n_bets An integer specifying the number of bets to simulate.
-#' @param n_sim An integer specifying the number of simulations to perform.
-#' @param edge A numeric value representing the edge you have (e.g., 1.10 for 10 percent edge).
-#' @param mean_stake A numeric value for the mean stake amount per bet, default is 100.
-#' @param same_odds A numeric value or vector to set the same odds for all bets, default is NULL.
+#' @param n_bets Integer. Number of bets to simulate (max 100,000).
+#' @param n_sim Integer. Number of simulations to perform (max 10,000).
+#' @param edge Numeric. Your edge on each bet (e.g., 1.10 for 10 percent edge).
+#' @param mean_stake Numeric. Mean stake amount per bet. If \code{flat = FALSE}, this represents the average potential *return* from each bet. Default is 100.
+#' @param same_odds Optional numeric. If provided, all bets use the same odds. Otherwise, odds are sampled from a gamma distribution.
+#' @param flat Logical. If \code{TRUE}, each bet uses a flat stake equal to \code{mean_stake}. If \code{FALSE}, the stake is calculated so the potential win equals \code{mean_stake}.
+#' @param min_odds Numeric. Minimum allowed odds (default is 1).
+#' @param max_odds Numeric. Maximum allowed odds (default is \code{Inf}).
 #'
 #' @return A list with:
 #' \item{profit_plot}{A ggplot object of cumulative profit across bets.}
@@ -19,16 +23,25 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("bet_number", "simulatio
 #' @examples
 #' sim_bets(n_bets = 1000, n_sim = 20, edge = 1.05)
 #' @export
-sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL) {
+sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL, flat = FALSE, min_odds = 1, max_odds = Inf) {
   if (n_sim > 10000) stop("Too many simulations; maximum is 10,000.")
   if (n_bets > 100000) stop("Too many bets; maximum is 100,000.")
+  if (min_odds > max_odds) stop("Min odds can not be higher than max odds")
 
   shape_param <- 1
   scale_param <- 1
   offset <- 1.25
 
   odds <- if (is.null(same_odds)) {
-    stats::rgamma(n_bets, shape = shape_param, scale = scale_param) + offset
+    raw_odds <- stats::rgamma(n_bets, shape = shape_param, scale = scale_param) + offset
+
+    # Resample for those outside bounds
+    while (any(out <- raw_odds < min_odds | raw_odds > max_odds)) {
+      n_out <- sum(out)
+      raw_odds[out] <- stats::rgamma(n_out, shape = shape_param, scale = scale_param) + offset
+    }
+
+    raw_odds
   } else {
     rep(same_odds, n_bets)
   }
@@ -36,24 +49,42 @@ sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL) {
   true_prob <- edge * (1 / odds)
 
   sim_mat <- matrix(NA, nrow = n_bets, ncol = n_sim)
+  stake_vec <- c()
+  i <- 1
 
   for (sim in seq_len(n_sim)) {
     profit <- numeric(n_bets)
     for (bet in seq_len(n_bets)) {
+
+      stake <- if (flat) {
+        mean_stake
+      } else {
+        mean_stake / (odds[bet] - 1)
+      }
+
+      # Store stake
+      stake_vec[i] <- stake
+      i <- i + 1
+
       result <- sample(
-        c((odds[bet] * mean_stake) - mean_stake, -mean_stake),
+        c(odds[bet] * stake - stake, -stake),
         size = 1,
         prob = c(true_prob[bet], 1 - true_prob[bet])
       )
+
       profit[bet] <- result + ifelse(bet == 1, 0, profit[bet - 1])
     }
+
     sim_mat[, sim] <- profit
     if (sim %% 50 == 0) cat(sprintf("Completed %d of %d simulations\n", sim, n_sim))
   }
 
   odds_df <- data.frame(odds = odds)
+  range_odds <- range(odds)
+  n_bins <- grDevices::nclass.FD(odds)
+
   odds_plot <- ggplot2::ggplot(odds_df, ggplot2::aes(x = odds)) +
-    ggplot2::geom_histogram(ggplot2::aes(y = ..density..), binwidth = 0.3, fill = "skyblue", color = "black", alpha = 0.8) +
+    ggplot2::geom_histogram(ggplot2::aes(y = ..density..), bins = n_bins, fill = "skyblue", color = "black", alpha = 0.8) +
     ggplot2::geom_density(color = "red", alpha = 0.5) +
     ggplot2::labs(
       title = "Histogram of Odds Played",
@@ -72,8 +103,8 @@ sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL) {
     ggplot2::geom_line(color = "#7CB9E8", alpha = 0.4) +
     ggplot2::labs(
       title = sprintf("Profit over %d Bets", n_bets),
-      subtitle = sprintf("%d simulations | Edge = %.2f | Mean stake = %d EUR | Mean odds = %.2f",
-                         n_sim, edge, mean_stake, mean(odds)),
+      subtitle = sprintf("%d simulations | Edge = %.2f | Mean stake = %.0f EUR | Mean odds = %.2f",
+                         n_sim, edge, mean(stake_vec), mean(odds)),
       x = "Number of Bets", y = "Cumulative Profit"
     ) +
     ggplot2::scale_y_continuous(labels = scales::comma_format(suffix = " EUR")) +
