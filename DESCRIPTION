@@ -1,0 +1,18 @@
+Package: betRBall
+Title: Tools for Football Analytics and Betting Models
+Version: 0.1.0
+Authors@R: 
+    person("William", "Wiik", email = "william.wiik@hotmail.se", role = c("aut", "cre"))
+Description: A set of tools for modeling, simulating and analyzing football matches and betting markets. 
+    Includes functions for expected goals, team strength estimation, and value bet detection.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.5.0)
+Imports:
+    dplyr,
+    ggplot2,
+    tidyr
+Suggests:
+    testthat
+RoxygenNote: 7.3.2
