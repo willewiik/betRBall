@@ -1,3 +1,4 @@
+
 #' Generate Poisson goal grid
 #'
 #' Creates a matrix of probabilities for different match scorelines based on Poisson-distributed expected goals.
@@ -13,8 +14,8 @@ poisson_goal_grid <- function(exp_home, exp_away, max_goals = 30) {
   colnames(grid) <- 0:(max_goals - 1)
   rownames(grid) <- 0:(max_goals - 1)
 
-  prob_home <- dpois(0:(max_goals - 1), exp_home)
-  prob_away <- dpois(0:(max_goals - 1), exp_away)
+  prob_home <- stats::dpois(0:(max_goals - 1), exp_home)
+  prob_away <- stats::dpois(0:(max_goals - 1), exp_away)
 
   for (i in 1:max_goals) {
     for (j in 1:max_goals) {
@@ -23,6 +24,7 @@ poisson_goal_grid <- function(exp_home, exp_away, max_goals = 30) {
   }
   return(grid)
 }
+
 
 
 #' Calculate Asian Handicap Odds Spread
