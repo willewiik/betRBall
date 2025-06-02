@@ -29,14 +29,15 @@ poisson_goal_grid <- function(exp_home, exp_away, max_goals = 30) {
 
 #' Calculate Asian Handicap Odds Spread
 #'
-#' Calculates the probabilities for Asian handicap betting lines.
+#' Calculates the probabilities or odds for Asian handicap betting lines.
 #'
 #' @param grid A matrix of scoreline probabilities.
 #' @param line The Asian handicap line (e.g., -0.5, -1.25).
+#' @param probs Logical; if TRUE returns probabilities, if FALSE returns odds (default FALSE).
 #'
-#' @return A numeric vector with two elements: probability for home team and away team.
+#' @return A numeric vector with two elements: home team and away team probabilities or odds.
 #' @export
-asian_handicap_odds <- function(grid, line) {
+asian_handicap_odds <- function(grid, line, probs = FALSE) {
   reverse <- FALSE
   if (line > 0) {
     line <- -line
@@ -75,25 +76,26 @@ asian_handicap_odds <- function(grid, line) {
     stop("Invalid line")
   }
 
-  if (reverse) {
-    return(c(away_prob, home_prob))
-  } else {
-    return(c(home_prob, away_prob))
+  res <- if (reverse) c(away_prob, home_prob) else c(home_prob, away_prob)
+
+  if (!probs) {
+    res <- 1 / res
   }
+  return(res)
 }
 
 
 #' Calculate Asian Total Goal Odds
 #'
-#' Calculates the probabilities for Asian total betting lines (over/under).
+#' Calculates the probabilities or odds for Asian total betting lines (over/under).
 #'
 #' @param grid A matrix of scoreline probabilities.
 #' @param line The total goals line (e.g., 2.5, 3.25).
+#' @param probs Logical; if TRUE returns probabilities, if FALSE returns odds (default FALSE).
 #'
-#' @return A numeric vector with two elements: probability for over and under.
-#'
+#' @return A numeric vector with two elements: over and under probabilities or odds.
 #' @export
-asian_total_odds <- function(grid, line) {
+asian_total_odds <- function(grid, line, probs = FALSE) {
   if (line <= 0.49) stop("Wrong line")
 
   sum_goals <- (row(grid) - 1) + (col(grid) - 1)
@@ -127,9 +129,13 @@ asian_total_odds <- function(grid, line) {
     stop("Invalid line")
   }
 
-  return(c(over, under))
-}
+  res <- c(over, under)
 
+  if (!probs) {
+    res <- 1 / res
+  }
+  return(res)
+}
 
 
 

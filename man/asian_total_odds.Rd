@@ -4,16 +4,18 @@
 \alias{asian_total_odds}
 \title{Calculate Asian Total Goal Odds}
 \usage{
-asian_total_odds(grid, line)
+asian_total_odds(grid, line, probs = FALSE)
 }
 \arguments{
 \item{grid}{A matrix of scoreline probabilities.}
 
 \item{line}{The total goals line (e.g., 2.5, 3.25).}
+
+\item{probs}{Logical; if TRUE returns probabilities, if FALSE returns odds (default FALSE).}
 }
 \value{
-A numeric vector with two elements: probability for over and under.
+A numeric vector with two elements: over and under probabilities or odds.
 }
 \description{
-Calculates the probabilities for Asian total betting lines (over/under).
+Calculates the probabilities or odds for Asian total betting lines (over/under).
 }

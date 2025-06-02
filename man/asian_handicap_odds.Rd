@@ -4,16 +4,18 @@
 \alias{asian_handicap_odds}
 \title{Calculate Asian Handicap Odds Spread}
 \usage{
-asian_handicap_odds(grid, line)
+asian_handicap_odds(grid, line, probs = FALSE)
 }
 \arguments{
 \item{grid}{A matrix of scoreline probabilities.}
 
 \item{line}{The Asian handicap line (e.g., -0.5, -1.25).}
+
+\item{probs}{Logical; if TRUE returns probabilities, if FALSE returns odds (default FALSE).}
 }
 \value{
-A numeric vector with two elements: probability for home team and away team.
+A numeric vector with two elements: home team and away team probabilities or odds.
 }
 \description{
-Calculates the probabilities for Asian handicap betting lines.
+Calculates the probabilities or odds for Asian handicap betting lines.
 }
