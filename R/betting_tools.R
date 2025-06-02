@@ -60,16 +60,16 @@ asian_handicap_odds <- function(grid, line, probs = FALSE) {
   } else if (abs(line) %% 1 == 0.25) {
     upper_half <- grid[row(grid) < col(grid) - ((-line) - 0.25)]
     push <- grid[row(grid) - col(grid) == (line + 0.25)]
-    home_helboll <- sum(upper_half) / (1 - sum(push))
-    home_prob <- (sum(upper_half) * 0.5 + home_helboll * 0.5)
+    home_whole_ball <- sum(upper_half) / (1 - sum(push))
+    home_prob <- (sum(upper_half) * 0.5 + home_whole_ball * 0.5)
     away_prob <- 1 - home_prob
 
   } else if (abs(line) %% 1 == 0.75) {
     upper_half <- grid[row(grid) < col(grid) - ((-line) - 0.75)]
     push <- grid[row(grid) - col(grid) == (line - 0.25)]
     upper_temp <- grid[row(grid) < col(grid) - ((-line) + 0.25)]
-    home_helboll <- sum(upper_temp) / (1 - sum(push))
-    home_prob <- (sum(upper_half) * 0.5 + home_helboll * 0.5)
+    home_whole_ball <- sum(upper_temp) / (1 - sum(push))
+    home_prob <- (sum(upper_half) * 0.5 + home_whole_ball * 0.5)
     away_prob <- 1 - home_prob
 
   } else {
@@ -113,16 +113,16 @@ asian_total_odds <- function(grid, line, probs = FALSE) {
   } else if (abs(line) %% 1 == 0.25) {
     upper_half <- sum(grid[sum_goals > (line + 0.25)])
     push <- grid[sum_goals == (line - 0.25)]
-    over_helboll <- upper_half / (1 - sum(push))
-    over <- (upper_half * 0.5 + over_helboll * 0.5)
+    over_whole_ball <- upper_half / (1 - sum(push))
+    over <- (upper_half * 0.5 + over_whole_ball * 0.5)
     under <- 1 - over
 
   } else if (abs(line) %% 1 == 0.75) {
     upper_half <- sum(grid[sum_goals > (line - 0.25)])
     push <- grid[sum_goals == (line + 0.25)]
     upper_temp <- sum(grid[sum_goals > (line + 0.75)])
-    over_helboll <- upper_temp / (1 - sum(push))
-    over <- (upper_half * 0.5 + over_helboll * 0.5)
+    over_whole_ball <- upper_temp / (1 - sum(push))
+    over <- (upper_half * 0.5 + over_whole_ball * 0.5)
     under <- 1 - over
 
   } else {
