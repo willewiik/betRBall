@@ -14,6 +14,7 @@ Currently, the package contains the following core functions:
 - `poisson_goal_grid()`: Generates a matrix of goal outcome probabilities for two teams using Poisson distribution.
 - `asian_handicap_odds()`: Calculates Asian handicap odds (e.g., -0.75, +1.5) using a matrix of goal outcome probabilities such as from `poisson_goal_grid()`.
 - `asian_total_odds()`: Calculates odds for Asian total goals lines (e.g., over/under 2.5, 3.25) using a matrix of goal outcome probabilities.
+- `remove_vig()`: Estimates the 'true' odds (i.e., without the bookmaker's margin or vig)
 - `sim_bets()`: Simulates betting outcomes to estimate expected profit and variance.
 
 
@@ -26,7 +27,7 @@ You can install the development version of `betRBall` from GitHub with:
 devtools::install_github("willewiik/betRBall")
 ```
 
-## 📊 Example 1
+## 📊 Betting calculations
 
 ```{r example}
 library(betRBall)
@@ -35,19 +36,49 @@ library(betRBall)
 grid <- poisson_goal_grid(exp_home = 1.5, exp_away = 1.2)
 
 # Calculate Asian handicap odds for line -0.25
-handicap_odds <- asian_handicap_odds(grid = grid, line = -0.25)
-print(handicap_odds)
+asian_handicap_odds(grid = grid, line = -0.25)
 # [1] 1.934441 2.070158
 
 # Calculate Asian total goals odds for line 3.25
-total_odds <- asian_total_odds(grid = grid, line = 3.25)
-print(total_odds)
+asian_total_odds(grid = grid, line = 3.25)
 [1] 3.064306 1.484424
+```
+
+### 📊 Remove margin
+
+Below are examples of how to use the `remove_vig()` function to estimate "true" odds by removing the bookmaker's margin.
+
+More info about the methods can be found in Joseph Buchdahl's excellent paper:
+**[The Wisdom of the Crowd – Removing the Margin](http://www.football-data.co.uk/wisdom_of_crowd_bets)**
+
+```{r example}
+
+# Equal Margin
+remove_vig("EM", c(1.28, 4.02))
+[1] 1.318408 4.140625
+
+# Margin Proportional to Odds 
+remove_vig("MPTO", c(1.28, 4.02))
+[1] 1.305062 4.278018
+
+# Odds Ratio
+remove_vig("OR", c(1.28, 4.02))
+[1] 1.304493 4.284152
+
+# Logarithmic Method
+remove_vig("LOG", c(1.28, 4.02))
+[1] 1.298212 4.353315
+
+# Equal Margin 3-way
+remove_vig("EM", c(2.88, 3.00, 2.62))
+[1] 3.059237 3.186705 2.783056
+
+
 ```
 
 
 
-## 📊 Example 2
+## 📊 Simulate betting outcomes
 
 ```{r example}
 library(betRBall)

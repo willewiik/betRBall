@@ -141,3 +141,108 @@ asian_total_odds <- function(grid, line, probs = FALSE) {
 
 
 
+#' Remove the bookmaker's margin from quoted odds
+#'
+#' This function estimates the 'true' odds (i.e., without the bookmaker's margin or vig)
+#' based on one of four methods described in betting literature:
+#' \itemize{
+#'   \item \code{"EM"} — Equal margin across all outcomes.
+#'   \item \code{"MPTO"} — Margin proportional to odds.
+#'   \item \code{"OR"} — Odds Ratio method (supports 2- or 3-way markets).
+#'   \item \code{"LOG"} — Logarithmic function method.
+#' }
+#'
+#' The function is suitable for both 2-outcome (e.g. tennis) and 3-outcome (e.g. football) betting markets.
+#'
+#' @param method Character. The method used to remove the margin. One of "EM", "MPTO", "OR", "LOG".
+#' @param odds Numeric vector. A vector of odds (decimal format).
+#'
+#' @return A numeric vector of 'true' odds with the bookmaker's margin removed.
+#'
+#' @examples
+#' #' # Football match with odds for Home, Draw, Away
+#' remove_vig("MPTO", c(2.88, 3.00, 2.62))
+#'
+#' # Tennis match with equal odds
+#' remove_vig("OR", c(1.90, 1.90))
+#'
+#' # Logarithmic method
+#' remove_vig("LOG", c(2.88, 3.00, 2.62))
+#'
+#' @references
+#' Buchdahl, J. (2015). *The Wisdom of the Crowd to Find Value in a Football Match Betting Market*.
+#' Retrieved from \url{http://www.football-data.co.uk/wisdom_of_crowd_bets}
+#'
+#' @export
+remove_vig <- function(method = "EM", odds) {
+  if (!(method %in% c("MPTO", "OR", "LOG", "EM"))) stop("No valid method")
+  if (!is.numeric(odds)) stop("Odds needs to be numeric")
+  if (length(odds) < 2) stop("Odds needs to be at least of length 2")
+
+  implied_probs <- 1 / odds
+  overround <- sum(implied_probs)
+  margin <- overround - 1
+
+  if (method == "EM") {
+    true_probs <- implied_probs / overround
+    return(1 / true_probs)
+
+  } else if (method == "MPTO") {
+    true_odds <- numeric(length(odds))
+    n <- length(odds)
+    for (i in seq_along(odds)) {
+      true_odds[i] <- (n * odds[i]) / (n - margin * odds[i])
+    }
+    return(true_odds)
+
+  } else if (method == "OR") {
+    if (length(odds) == 2) {
+      x <- implied_probs[1]
+      y <- implied_probs[2]
+
+      f <- function(c) {
+        p <- x / (c + x - c * x)
+        q <- y / (c + y - c * y)
+        return(p + q - 1)
+      }
+      c_est <- stats::uniroot(f, c(0.001, 100))$root
+      true_probs <- c(
+        x / (c_est + x - c_est * x),
+        y / (c_est + y - c_est * y)
+      )
+      true_probs <- true_probs / sum(true_probs)  # Normalize in case of numerical errors
+      return(1 / true_probs)
+    }
+
+    if (length(odds) == 3) {
+      # 3-outcome OR model (football)
+      f <- function(c) {
+        sum(implied_probs / (c + implied_probs - c * implied_probs)) - 1
+      }
+      c_est <- stats::uniroot(f, c(0.001, 100), tol = 1e-10)$root
+      true_probs <- implied_probs / (c_est + implied_probs - c_est * implied_probs)
+      true_probs <- true_probs / sum(true_probs)  # Normalize in case of numerical errors
+      return(1 / true_probs)
+    }
+
+    stop("OR method currently only supports 2- or 3-way odds")
+
+  } else if (method == "LOG") {
+    # Solve for n such that sum((implied_probs)^(1/n)) = 1
+    f <- function(n) sum(implied_probs^(1/n)) - 1
+    n_est <- uniroot(f, c(0.001, 10))$root
+    true_probs <- implied_probs^(1 / n_est)
+    true_probs <- true_probs / sum(true_probs)  # Normalize in case of numerical errors
+    return(1 / true_probs)
+  }
+}
+
+
+
+
+
+
+
+
+
+
