@@ -135,3 +135,5 @@ sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL, fl
 
   list(profit_plot = profit_plot, odds_plot = odds_plot)
 }
+
+

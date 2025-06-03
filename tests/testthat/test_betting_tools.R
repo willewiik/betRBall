@@ -41,6 +41,12 @@ test_that("asian_total_odds throws error for invalid lines", {
 })
 
 
+test_that("asian_total_odds throws error for invalid lines", {
+  grid <- poisson_goal_grid(exp_home = 2.6, exp_away = 1.6)
+  expect_true(abs(sum(match_outcome_odds(grid, TRUE)) - 1) < 1e-6)
+})
+
+
 
 
 test_that("EM method removes equal margin correctly", {
@@ -101,6 +107,59 @@ test_that("Too short odds vector throws an error", {
 test_that("OR method fails for more than 3-way", {
   expect_error(remove_vig("OR", c(2.0, 3.0, 4.0, 5.0)))
 })
+
+
+test_that("Decimal input is converted correctly", {
+  res <- convert_odds(2.5, "decimal")
+  expect_equal(res$american, 150)
+  expect_equal(res$fractional, "3/2")
+  expect_equal(res$prob, 0.4, tolerance = 1e-4)
+})
+
+test_that("American input (positive) is converted correctly", {
+  res <- convert_odds(150, "american")
+  expect_equal(res$decimal, 2.5)
+  expect_equal(res$fractional, "3/2")
+  expect_equal(res$prob, 0.4, tolerance = 1e-4)
+})
+
+test_that("American input (negative) is converted correctly", {
+  res <- convert_odds(-200, "american")
+  expect_equal(res$decimal, 1.5)
+  expect_equal(res$fractional, "1/2")
+  expect_equal(res$prob, 2/3, tolerance = 1e-4)
+})
+
+test_that("Fractional input is converted correctly", {
+  res <- convert_odds("5/2", "fractional")
+  expect_equal(res$decimal, 3.5)
+  expect_equal(res$american, 250)
+  expect_equal(res$prob, 1 / 3.5, tolerance = 1e-4)
+})
+
+test_that("Implied probability input is converted correctly", {
+  res <- convert_odds(0.4, "prob")
+  expect_equal(res$decimal, 2.5)
+  expect_equal(res$american, 150)
+  expect_equal(res$fractional, "3/2")
+})
+
+test_that("Invalid fractional format throws error", {
+  expect_error(convert_odds("5:2", "fractional"))
+  expect_error(convert_odds("abc", "fractional"))
+})
+
+test_that("Decimal <= 1 throws error", {
+  expect_error(convert_odds(1.00, "decimal"))
+  expect_error(convert_odds(0.5, "decimal"))
+})
+
+test_that("Negative or zero probability throws error", {
+  expect_error(convert_odds(0, "prob"))
+  expect_error(convert_odds(-0.1, "prob"))
+})
+
+
 
 
 

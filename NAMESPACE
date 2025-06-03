@@ -2,6 +2,8 @@
 
 export(asian_handicap_odds)
 export(asian_total_odds)
+export(convert_odds)
+export(match_outcome_odds)
 export(poisson_goal_grid)
 export(remove_vig)
 export(sim_bets)

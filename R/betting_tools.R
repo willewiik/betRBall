@@ -139,6 +139,23 @@ asian_total_odds <- function(grid, line, probs = FALSE) {
 
 
 
+#' Calculate Match Outcome Probabilities
+#'
+#' @param grid A matrix of scoreline probabilities.
+#' @param probs Logical; if TRUE returns probabilities, if FALSE returns odds (default FALSE).
+#' @return Numeric vector: c(home_win, draw, away_win)
+#' @export
+match_outcome_odds <- function(grid, probs = FALSE) {
+  home_win <- sum(grid[row(grid) > col(grid)])
+  draw <- sum(diag(grid))
+  away_win <- sum(grid[row(grid) < col(grid)])
+  if (probs) {
+    return(c(home_win, draw, away_win))
+  } else {
+    return(c(1/home_win, 1/draw, 1/away_win))
+  }
+}
+
 
 
 #' Remove the bookmaker's margin from quoted odds
@@ -237,6 +254,74 @@ remove_vig <- function(method = "EM", odds) {
   }
 }
 
+
+
+
+
+#' Convert Between Odds Formats
+#'
+#' Converts odds between decimal, American, fractional, and implied probability formats.
+#'
+#' @param x The input value (numeric or character). For fractional, use string format like "5/2".
+#' @param from The input format. One of: "decimal", "american", "fractional", "prob".
+#'
+#' @return A named list with all formats: decimal, american, fractional, and prob.
+#'
+#' @examples
+#' convert_odds(2.50, from = "decimal")
+#' convert_odds(-200, from = "american")
+#' convert_odds("5/2", from = "fractional")
+#' convert_odds(0.40, from = "prob")
+#' @export
+convert_odds <- function(x, from = c("decimal", "american", "fractional", "prob")) {
+  from <- match.arg(from)
+
+  # Convert to decimal
+  decimal <- switch(from,
+                    decimal = as.numeric(x),
+                    american = ifelse(x >= 100, (x / 100) + 1, ifelse(x <= -100, (100 / abs(x)) + 1, NA)),
+                    fractional = {
+                      parts <- strsplit(x, "/")[[1]]
+                      if (length(parts) != 2) stop("Invalid fractional format. Use '5/2', '3/1', etc.")
+                      (as.numeric(parts[1]) / as.numeric(parts[2])) + 1
+                    },
+                    prob = 1 / as.numeric(x)
+  )
+
+  prob <- switch(from,
+                 prob = {
+                   x <- as.numeric(x)
+                   if (x <= 0 || x >= 1) stop("Probability must be between 0 and 1 (exclusive).")
+                   x
+                 },
+                 decimal = 1 / as.numeric(x),
+                 american = NA,
+                 fractional = NA
+  )
+
+  if (is.na(decimal) || decimal <= 1) stop("Invalid odds or format.")
+
+  # Compute all formats
+  prob <- 1 / decimal
+  american <- if (decimal >= 2) {
+    round((decimal - 1) * 100)
+  } else {
+    round(-100 / (decimal - 1))
+  }
+
+  frac <- {
+    # Reduce fractional representation
+    rational <- MASS::fractions(decimal - 1)
+    as.character(rational)
+  }
+
+  list(
+    decimal = round(decimal, 4),
+    american = american,
+    fractional = frac,
+    prob = round(prob, 4)
+  )
+}
 
 
 

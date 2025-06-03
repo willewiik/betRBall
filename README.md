@@ -14,7 +14,9 @@ Currently, the package contains the following core functions:
 - `poisson_goal_grid()`: Generates a matrix of goal outcome probabilities for two teams using Poisson distribution.
 - `asian_handicap_odds()`: Calculates Asian handicap odds (e.g., -0.75, +1.5) using a matrix of goal outcome probabilities such as from `poisson_goal_grid()`.
 - `asian_total_odds()`: Calculates odds for Asian total goals lines (e.g., over/under 2.5, 3.25) using a matrix of goal outcome probabilities.
+- `match_outcome_odds()`: Calculates match outcome probabilities using a matrix of goal outcome probabilities.
 - `remove_vig()`: Estimates the 'true' odds (i.e., without the bookmaker's margin or vig)
+- `convert_odds()`: Converts odds between decimal, American, fractional, and implied probability formats.
 - `sim_bets()`: Simulates betting outcomes to estimate expected profit and variance.
 
 
@@ -36,12 +38,16 @@ library(betRBall)
 grid <- poisson_goal_grid(exp_home = 1.5, exp_away = 1.2)
 
 # Calculate Asian handicap odds for line -0.25
-asian_handicap_odds(grid = grid, line = -0.25)
+asian_handicap_odds(grid, -0.25)
 # [1] 1.934441 2.070158
 
 # Calculate Asian total goals odds for line 3.25
-asian_total_odds(grid = grid, line = 3.25)
+asian_total_odds(grid, 3.25)
 [1] 3.064306 1.484424
+
+# Calculate match 1X2 odds
+match_outcome_odds(grid)
+[1] 3.292527 3.924388 2.265184
 ```
 
 ### 📊 Remove margin
@@ -73,6 +79,66 @@ remove_vig("LOG", c(1.28, 4.02))
 remove_vig("EM", c(2.88, 3.00, 2.62))
 [1] 3.059237 3.186705 2.783056
 
+
+```
+
+### 📊 Convert Between Odds Formats
+
+```{r example}
+
+convert_odds(2.50, "decimal")
+$decimal
+[1] 2.5
+
+$american
+[1] 150
+
+$fractional
+[1] "3/2"
+
+$prob
+[1] 0.4
+
+convert_odds(-200, "american")
+$decimal
+[1] 1.5
+
+$american
+[1] -200
+
+$fractional
+[1] "1/2"
+
+$prob
+[1] 0.6667
+
+
+convert_odds("5/2", "fractional")
+$decimal
+[1] 3.5
+
+$american
+[1] 250
+
+$fractional
+[1] "5/2"
+
+$prob
+[1] 0.2857
+
+
+convert_odds(0.25, "prob")
+$decimal
+[1] 4
+
+$american
+[1] 300
+
+$fractional
+[1] "3"
+
+$prob
+[1] 0.25
 
 ```
 
