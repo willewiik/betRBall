@@ -146,9 +146,9 @@ asian_total_odds <- function(grid, line, probs = FALSE) {
 #' @return Numeric vector: c(home_win, draw, away_win)
 #' @export
 match_outcome_odds <- function(grid, probs = FALSE) {
-  home_win <- sum(grid[row(grid) > col(grid)])
+  away_win <- sum(grid[row(grid) > col(grid)])
   draw <- sum(diag(grid))
-  away_win <- sum(grid[row(grid) < col(grid)])
+  home_win <- sum(grid[row(grid) < col(grid)])
   if (probs) {
     return(c(home_win, draw, away_win))
   } else {

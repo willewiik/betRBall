@@ -137,3 +137,9 @@ sim_bets <- function(n_bets, n_sim, edge, mean_stake = 100, same_odds = NULL, fl
 }
 
 
+result <- sim_bets(n_bets = 1000, n_sim = 250, edge = 1.05, flat = FALSE, max_odds = 4)
+
+
+
+
+

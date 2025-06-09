@@ -47,7 +47,7 @@ asian_total_odds(grid, 3.25)
 
 # Calculate match 1X2 odds
 match_outcome_odds(grid)
-[1] 3.292527 3.924388 2.265184
+[1] 2.265184 3.924388 3.292527
 ```
 
 ### 📊 Remove margin
@@ -82,7 +82,7 @@ remove_vig("EM", c(2.88, 3.00, 2.62))
 
 ```
 
-### 📊 Convert Between Odds Formats
+### 📊 Convert between odds formats
 
 ```{r example}
 
